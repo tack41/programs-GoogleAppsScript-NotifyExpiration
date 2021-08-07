@@ -19,7 +19,8 @@ function NotifyExpiration(targetSpreadFileID, targetSheetName, targetRow) {
   const expirationName = targetSheet.getRange(targetRow, 1, 1, 1).getValue();
   const expirationTime = new Date(targetSheet.getRange(targetRow, 2, 1, 1).getValue());
   const alertHourFroms = targetSheet.getRange(targetRow, 3, 1, 1).getValue().toString().split(',');
-  const comment = targetSheet.getRange(targetRow, 4, 1, 1).getValue().toString().split(',');
+  const alertTargets = targetSheet.getRange(targetRow, 4, 1, 1).getValue().toString().split(',');
+  const comment = targetSheet.getRange(targetRow, 5, 1, 1).getValue().toString().split(',');
   
   // 1列目の管理対象名が未指定の場合は実行しない
   if(expirationName.trim().length == 0){
@@ -34,7 +35,7 @@ function NotifyExpiration(targetSpreadFileID, targetSheetName, targetRow) {
   let sent = false
   for(const alertHourFrom of alertHourFroms){    
     if(hoursLeft == alertHourFrom){
-      sendMessage(`${expirationName}の期限があと${Math.round(hoursLeft)}時間です\n${comment}`);
+      sendMessage(alertTargets, `${expirationName}の期限があと${Math.round(hoursLeft)}時間です\n${comment}`);
       console.log(`Message for '${expirationName}' sent because hours left: ${hoursLeft}`);
       sent = true;
       break;
@@ -65,18 +66,27 @@ function callerForAllRow() {
   }
 }
 
-function sendMessage(message) {
+function sendMessage(alertTargets, message) {
   //Line Notifyのトークン
-  const lineTokenFamily = PropertiesService.getScriptProperties().getProperty('lineTokenFamily')
-  const lineTokenDebug = PropertiesService.getScriptProperties().getProperty('lineTokenDebug')
+  const lineTokenFamily = PropertiesService.getScriptProperties().getProperty('lineTokenFamily');
+  const lineTokenDebug = PropertiesService.getScriptProperties().getProperty('lineTokenDebug');
 
-  const options =
-   {
-     "method"  : "post",
-     "payload" : "message=" + message,
-     "headers" : {"Authorization" : "Bearer "+ lineTokenDebug}
-   };
+  let lineToken;
+  for(const alertTarget of alertTargets){
+    if(alertTarget == "家族"){
+      lineToken = lineTokenFamily;
+    }else{
+      lineToken = lineTokenDebug;
+    }
 
-   UrlFetchApp.fetch("https://notify-api.line.me/api/notify",options);
-   console.log(`Message sent.`);
+    const options =
+    {
+      "method"  : "post",
+      "payload" : "message=" + message,
+      "headers" : {"Authorization" : "Bearer "+ lineToken}
+    };
+
+    UrlFetchApp.fetch("https://notify-api.line.me/api/notify",options);
+    console.log(`Message sent.`);
+  }
 }
