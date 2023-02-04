@@ -11,6 +11,9 @@ function NotifyExpiration(targetSpreadFileID, targetSheetName, targetRow) {
   //対象シートを取得
   const spreadApp = SpreadsheetApp.openById(targetSpreadFileID);
   const targetSheet = spreadApp.getSheetByName(targetSheetName);
+  if(targetSheet === null){
+    throw new TypeError(`Cannot get Sheet object named: ${targetSheetName}`)
+  }
 
   //今の時刻を取得
   const now = new Date();
@@ -49,11 +52,20 @@ function NotifyExpiration(targetSpreadFileID, targetSheetName, targetRow) {
 function callerForAllRow() {
 
   const targetSpreadFileID = PropertiesService.getScriptProperties().getProperty('TARGET_SPREADSHEET_ID');
+  if(targetSpreadFileID === null){
+      throw new TypeError(`Cannot get Property named 'TARGET_SPREADSHEET_ID'`);
+  }
   const targetSheetName = PropertiesService.getScriptProperties().getProperty('TARGET_SHEET_NAME');
+  if(targetSheetName === null){
+    throw new TypeError("Cannot get property named 'TARGET_SHEET_NAME'");
+  }
   
   //対象シートを取得
   const spreadApp = SpreadsheetApp.openById(targetSpreadFileID);
   const targetSheet = spreadApp.getSheetByName(targetSheetName);
+  if(targetSheet === null){
+    throw new TypeError(`Cannot get sheet object named: '${targetSheetName}`);
+  }
 
   //最終行を取得
   const lastRow = targetSheet.getLastRow();
