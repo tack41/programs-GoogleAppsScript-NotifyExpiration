@@ -1,7 +1,7 @@
 {
   "devDependencies": {
     "@google/clasp": "^2.4.1",
-    "@types/google-apps-script": "^1.0.46",
+    "@types/google-apps-script": "^1.0.57",
     "@types/jest": "^27.4.1",
     "jest": "^27.5.1",
     "ts-jest": "^27.1.4",
